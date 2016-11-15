@@ -13,8 +13,10 @@
             this.height = parseInt(data.height, 10);
         }
 
-        this.timeout = data.timeout ? parseInt(data.timeout) : 100;
+        this.pageTimeout = data.timeout ? parseInt(data.timeout) : 100;
         if (this.timeout > 1000) { this.timeout = 1000; }
+
+        this.pageOnLoad = data.onload ? true : false;
 
         this.page = webpage.create();
 
@@ -60,15 +62,24 @@
 
     Renderer.prototype.onPageReady = function() {
         this.page.content = this.html;
-        var pageReady = function() {
-            window.onload = function() {
-                window.callPhantom('OK');
+
+        if (this.pageOnLoad) {
+            var pageOnLoad = function() {
+                window.onload = function() {
+                    window.callPhantom('OK');
+                };
             };
-            setTimeout(function() {
-                window.callPhantom('OK');
-            }, this.timeout);
-        };
-        this.page.evaluate(pageReady);
+            this.page.evaluate(pageOnLoad);
+        }
+
+        if (this.pageTimeout > 0) {
+            var pageTimeout = function() {
+                setTimeout(function() {
+                    window.callPhantom('OK');
+                }, this.pageTimeout);
+            };
+            this.page.evaluate(pageTimeout);
+        }
     };
 
     Renderer.prototype.render = function() {
