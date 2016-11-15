@@ -32,7 +32,7 @@
     Server.prototype.onPostRequest = function(request, response) {
         var data;
         try {
-           data = JSON.parse(request.postRaw);
+           data = JSON.parse(request.post || request.postRaw);
         } catch(error) {
             // In case the JSON parse fails, just pass it to onError handler
             return this.onError(response, JSON.stringify(error));

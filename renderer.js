@@ -36,7 +36,7 @@
     };
 
     Renderer.prototype.onPhantomCallback = function(message) {
-        var data    = base64.decode(this.page.renderBase64('png'));
+        var data = base64.decode(this.page.renderBase64('png'));
         var decoded = '';
 
         for (var i = 0; i < data.length; i++) {
@@ -54,7 +54,9 @@
     Renderer.prototype.onPageReady = function() {
         this.page.content = this.html;
         var pageReady = function() {
-            window.callPhantom('OK');            
+            window.onload = function() {
+                window.callPhantom('OK');
+            };            
         };
         this.page.evaluate(pageReady);
     };
