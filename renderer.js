@@ -61,6 +61,9 @@
     Renderer.prototype.onPageReady = function() {
         this.page.content = this.html;
         var pageReady = function() {
+            window.onload = function() {
+                window.callPhantom('OK');
+            };
             setTimeout(function() {
                 window.callPhantom('OK');
             }, this.timeout);
