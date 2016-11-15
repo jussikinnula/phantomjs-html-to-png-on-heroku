@@ -59,10 +59,10 @@
         response.close();
     };
 
-    Server.prototype.onRenderComplete = function(response, image) {
+    Server.prototype.onRenderComplete = function(response, format, image) {
         response.statusCode = 200;
         response.setEncoding('binary');
-        response.setHeader('Content-Type', 'image/png');
+        response.setHeader('Content-Type', 'image/' + format);
         response.setHeader('Content-Length', image.length);
         response.write(image);
         response.close();

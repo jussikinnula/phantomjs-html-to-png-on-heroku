@@ -13,7 +13,11 @@
             this.height = parseInt(data.height, 10);
         }
 
-        this.format = (data.format && data.formate === 'gif') ? 'gif' : 'png';
+        if (data.format && data.format === 'gif' || data.format === 'jpg') {
+            this.format = data.format;
+        } else {
+            this.format = 'png';
+        }
 
         this.pageTimeout = data.timeout ? parseInt(data.timeout) : 100;
         if (this.timeout > 1000) { this.timeout = 1000; }
@@ -38,6 +42,7 @@
     Renderer.prototype.loadPage = function() {
         if (this.width > 0 && this.height > 0) {
             this.page.viewportSize = { width: this.width, height: this.height };
+            this.page.clipRect = { top: 0, left: 0, width: this.width, height: this.height };
         }
         this.page.open('about:blank', this.onPageReady.bind(this));
     };
@@ -47,17 +52,14 @@
     };
 
     Renderer.prototype.onPhantomCallback = function(message) {
-        var data = base64.decode(this.page.renderBase64(this.format));
+        var data = base64.decode(this.page.renderBase64(this.format.toUpperCase()));
         var decoded = '';
 
         for (var i = 0; i < data.length; i++) {
             decoded = decoded + String.fromCharCode(data[i]);
         }
 
-        this.onRenderCompleteCallback(
-            this.response,
-            decoded
-        );
+        this.onRenderCompleteCallback(this.response, this.format, decoded);
 
         this.page.close();
     };
