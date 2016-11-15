@@ -7,8 +7,10 @@
 
     Renderer.prototype.init = function(data) {
         this.html = data.html;
-        this.width = parseInt(data.width, 10);
-        this.height = parseInt(data.height, 10);
+        if (data.width && data.height) {
+            this.width = parseInt(data.width, 10);
+            this.height = parseInt(data.height, 10);
+        }
         this.page = webpage.create();
 
         this.setOnRenderCallback(function() {});
@@ -54,9 +56,9 @@
     Renderer.prototype.onPageReady = function() {
         this.page.content = this.html;
         var pageReady = function() {
-            window.onload = function() {
+            setTimeout(function() {
                 window.callPhantom('OK');
-            };            
+            }, 100);
         };
         this.page.evaluate(pageReady);
     };
