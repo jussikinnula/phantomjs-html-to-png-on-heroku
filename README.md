@@ -27,3 +27,7 @@ heroku buildpacks:add https://github.com/stomita/heroku-buildpack-phantomjs
 heroku buildpacks:add https://github.com/heroku/heroku-buildpack-nodejs
 git push heroku master
 ```
+
+## Fonts
+
+You should include all the fonts needed under `.fonts` directory, instead of loading web fonts. PhantomJS is not always fast enough to load web fonts. The fonts should be in TrueType format.
