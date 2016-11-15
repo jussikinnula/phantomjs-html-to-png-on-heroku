@@ -35,7 +35,7 @@
            data = JSON.parse(request.post || request.postRaw);
         } catch(error) {
             // In case the JSON parse fails, just pass it to onError handler
-            return this.onError(response, JSON.stringify(error));
+            return this.onError(response, JSON.stringify(error), 'JSON parsing failed');
         }
         if (data && data.html) {
             var renderer = new Renderer(data);
@@ -43,11 +43,14 @@
             renderer.setOnRenderCallback(this.onRenderComplete.bind(this));
             renderer.render();
         } else {
-            this.onError(response, 'Provided JSON does not have "html" entity');
+            this.onError(response, null, 'Provided JSON does not have "html" entity');
         }
     };
 
-    Server.prototype.onError = function(response, error) {
+    Server.prototype.onError = function(response, realError, error) {
+        if (realError) {
+            console.log("ERROR", realError);
+        }
         response.statusCode = 500;
         response.setHeader('Content-Type',  'text/plain');
         response.setHeader('Content-Length', error.length);
