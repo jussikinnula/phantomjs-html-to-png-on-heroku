@@ -1,6 +1,6 @@
 {
   "name": "phantomjs-html-to-png-on-heroku",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run PhantomJS powered rendering server on Heroku, which produces PNG out of HTML",
   "main": "server.js",
   "scripts": {
