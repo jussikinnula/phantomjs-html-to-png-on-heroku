@@ -7,10 +7,15 @@
 
     Renderer.prototype.init = function(data) {
         this.html = data.html;
+
         if (data.width && data.height) {
             this.width = parseInt(data.width, 10);
             this.height = parseInt(data.height, 10);
         }
+
+        this.timeout = data.timeout ? parseInt(data.timeout) : 100;
+        if (this.timeout > 1000) { this.timeout = 1000; }
+
         this.page = webpage.create();
 
         this.setOnRenderCallback(function() {});
@@ -58,7 +63,7 @@
         var pageReady = function() {
             setTimeout(function() {
                 window.callPhantom('OK');
-            }, 100);
+            }, this.timeout);
         };
         this.page.evaluate(pageReady);
     };
