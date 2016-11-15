@@ -13,6 +13,8 @@
             this.height = parseInt(data.height, 10);
         }
 
+        this.format = (data.format && data.formate === 'gif') ? 'gif' : 'png';
+
         this.pageTimeout = data.timeout ? parseInt(data.timeout) : 100;
         if (this.timeout > 1000) { this.timeout = 1000; }
 
@@ -45,7 +47,7 @@
     };
 
     Renderer.prototype.onPhantomCallback = function(message) {
-        var data = base64.decode(this.page.renderBase64('png'));
+        var data = base64.decode(this.page.renderBase64(this.format));
         var decoded = '';
 
         for (var i = 0; i < data.length; i++) {
