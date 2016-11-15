@@ -1,75 +1,77 @@
-require('phantomjs-crypto-polyfill')
-var webserver = require('webserver');
-var system = require('system');
-var webpage = require('webpage');
-var webpage = require('./libs/base64');
+(function() {
+    'use strict';
 
-var server = webserver.create();
-var port = system.env.PORT || 5000;
-console.log('Listening on port http://localhost:' + port);
-var service = server.listen(port, handleRequest);
+    // Init variables
+    var webserver = require('webserver');
+    var usage = 'POST HTML page to render to PNG {"html": "<html><body><h1>Hello World!</h1></body></html>","width":640,"height":480}';
+    var Renderer = require('./renderer.js');
+    var Server = function(port) { this.init(port); };
 
-function handleRequest(request, response) {
-    switch (request.method) {
-        case 'POST':
-            return handlePostRequest(request, response);
-        default:
-            return handleGetRequest(request, response);
-    }
-}
+    Server.prototype.init = function(port) {
+        this.port = port;
+        this.startServer();
+    };
 
-function handlePostRequest(request, response) {
-    var html;
-    render(request.postRaw, function(error, image) {
-        if (error || !image) {
-            handleError(response, error);
+    Server.prototype.onRequest = function(request, response) {
+        switch (request.method) {
+            case 'POST':
+                return this.onPostRequest(request, response);
+            default:
+                return this.onGetRequest(request, response);
+        }
+    };
+
+    Server.prototype.onGetRequest = function(request, response) {
+        response.statusCode = (request.method == 'GET') ? 200 : 400;
+        response.setHeader('Content-Type',  'text/plain');
+        response.setHeader('Content-Length', usage.length);
+        response.write(usage);
+        response.close();
+    };
+
+    Server.prototype.onPostRequest = function(request, response) {
+        var data;
+        try {
+           data = JSON.parse(request.postRaw);
+        } catch(error) {
+            // In case the JSON parse fails, just pass it to onError handler
+            return this.onError(response, JSON.stringify(error));
+        }
+        if (data && data.html) {
+            var renderer = new Renderer(data);
+            renderer.setResponse(response);
+            renderer.setOnRenderCallback(this.onRenderComplete.bind(this));
+            renderer.render();
         } else {
-            response.statusCode = 200;
-            response.setEncoding('binary');
-            response.setHeader('Content-Type', 'image/png');
-            response.setHeader('Content-Length', image.length);
-            response.write(image);
-            response.close();   
+            this.onError(response, 'Provided JSON does not have "html" entity');
         }
-    });
-}
+    };
 
-function handleError(response, error) {
-    response.statusCode = 500;
-    response.setHeader('Content-Type', 'text/plain');
-    response.setHeader('Content-Length', error.length);
-    response.write(error);
-    response.close();
-}
+    Server.prototype.onError = function(response, error) {
+        response.statusCode = 500;
+        response.setHeader('Content-Type',  'text/plain');
+        response.setHeader('Content-Length', error.length);
+        response.write(error);
+        response.close();
+    };
 
-function handleGetRequest(request, response) {
-    var usage = 'POST HTML page to render to PNG {"html": "<html><body><h1>Hello World!</h1></body></html>"}';
-    response.statusCode = (request.method == 'GET') ? 200 : 400;
-    response.setHeader('Content-Type', 'text/plain');
-    response.setHeader('Content-Length', usage.length);
-    response.write(usage);
-    response.close();
-}
+    Server.prototype.onRenderComplete = function(response, image) {
+        response.statusCode = 200;
+        response.setEncoding('binary');
+        response.setHeader('Content-Type', 'image/png');
+        response.setHeader('Content-Length', image.length);
+        response.write(image);
+        response.close();
+    };
 
-function render(html, callback) {
-    console.log("webpage.create");
-    var page = webpage.create();
-    console.log("page.open");
-    page.open('about:black', function() {
-        console.log("Page opened");
-        page.onLoadFinished = function() {
-            console.log("onLoadFinished");
-            var data = base64.decode(page.renderBase64('png'));
-            var decoded = '';
-            for (var i = 0; i < data.length; i++) {
-                decoded = decoded + String.fromCharCode(data[i]);
-            }
-            callback(null, decoded);
-            page.close();
-        }
-        page.onError = function(error) {
-            callback(error, null);
-        }
-        page.setContent = html;
-    });
-}
+    Server.prototype.startServer = function() {
+        this.server  = webserver.create();
+        this.service = this.server.listen(
+            this.port,
+            this.onRequest.bind(this)
+        );
+    };
+
+    module.exports = Server;
+
+})();
