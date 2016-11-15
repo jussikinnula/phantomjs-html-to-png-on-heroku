@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/jussikinnula/phantomjs-html-to-png-on-heroku/issues"
   },
-  "homepage": "https://github.com/jussikinnula/phantomjs-html-to-png-on-heroku#readme",
-  "dependencies": {
-    "phantomjs-crypto-polyfill": "^1.0.1"
-  }
+  "homepage": "https://github.com/jussikinnula/phantomjs-html-to-png-on-heroku#readme"
 }
