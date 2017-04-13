@@ -16,14 +16,7 @@ npm start
 ## Make API calls
 
 ```
-curl -X POST -d '{ \
-    "html":"<html><body><h1>Hello World!</h1></body></html>", \
-    "width":640, \
-    "height":480, \
-    "format":"png", \
-    "onload":false, \
-    "timeout":50 \
-}' http://localhost:5000
+curl -X POST -d '{ "html": "<html><body><h1>Hello World!</h1></body></html>", "width": 640, "height": 480, "format": "png",  "onload": false, "timeout": 50 }' http://localhost:5000
 ```
 
 ### Parameters
